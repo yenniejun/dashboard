@@ -9,7 +9,7 @@ date_today = datetime.today().strftime("%Y-%m-%d")
 
 noise_req = get(url=f"https://data.cityofnewyork.us/resource/erm2-nwe9.csv?$query=\
     SELECT *,date_trunc_ymd(created_date) AS DAY\
-    WHERE (created_date between '2020-01-01' and '{date_today}' AND complaint_type like '%Noise%')\
+    WHERE (created_date between '2020-01-01' and '{date_today}' AND complaint_type like '%Noise')\
     LIMIT 18000\
 ")
 
