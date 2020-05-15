@@ -2,3 +2,6 @@ data
 __pycache__
 dashboard_data.ipynb
 .ipynb_checkpoints
+venv
+.DS_Store
+.env
