@@ -6,22 +6,26 @@ import pandas as pd
 import plotly.graph_objects as go
 
 date_today = datetime.today().strftime("%Y-%m-%d")
+noise_req = get(url=f"https://data.cityofnewyork.us/resource/erm2-nwe9.csv?$query=\
+    SELECT *,date_trunc_ymd(created_date) AS DAY\
+    WHERE (created_date between '2020-01-01' and '{date_today}' AND complaint_type like '%Noise')\
+    LIMIT 18000\
+	")
+noise_df = pd.read_csv(io.StringIO(noise_req.content.decode('utf-8')), dtype={'incident_zip': object})
+noise_df.set_index(pd.DatetimeIndex(noise_df['created_date']), inplace=True);
+# grouper_zip = noise_df.groupby([pd.Grouper(freq='1D'), 'incident_zip']).count()
+# grouper_bor = noise_df.groupby([pd.Grouper(freq='1D'), 'borough']).count()
+# grouper_bor_h = noise_df.groupby([pd.Grouper(freq='1H'), 'borough']).count()
+grouper_overall = noise_df.groupby([pd.Grouper(freq='1D')]).count()
+
+limit=3000
+req_borough_w = get(f"https://data.cityofnewyork.us/api/id/erm2-nwe9.csv?$query=select%20date_trunc_ymd(%60created_date%60)%20as%20%60created_date%60%2C%20%60complaint_type%60%2C%20%60borough%60%2C%20count(%60unique_key%60)%20as%20%60unique_key%60%20where%20(contains(upper(%60complaint_type%60)%2C%20upper(%27Noise%27)))%20group%20by%20%60created_date%60%2C%20%60complaint_type%60%2C%20%60borough%60%20order%20by%20%60created_date%60%20desc%20limit%20{limit}")
+df_borough_w= pd.read_csv(io.StringIO(req_borough_w.content.decode('utf-8')))
+boroughs = df_borough_w[df_borough_w.complaint_type.str.contains("Noise")].groupby(['created_date', 'borough']).sum()
 
 
 def noise_graph(graph_type):
-	noise_req = get(url=f"https://data.cityofnewyork.us/resource/erm2-nwe9.csv?$query=\
-	    SELECT *,date_trunc_ymd(created_date) AS DAY\
-	    WHERE (created_date between '2020-01-01' and '{date_today}' AND complaint_type like '%Noise')\
-	    LIMIT 18000\
-		")
-	noise_df = pd.read_csv(io.StringIO(noise_req.content.decode('utf-8')), dtype={'incident_zip': object})
-	noise_df.set_index(pd.DatetimeIndex(noise_df['created_date']), inplace=True);
-	# grouper_zip = noise_df.groupby([pd.Grouper(freq='1D'), 'incident_zip']).count()
-	# grouper_bor = noise_df.groupby([pd.Grouper(freq='1D'), 'borough']).count()
-	# grouper_bor_h = noise_df.groupby([pd.Grouper(freq='1H'), 'borough']).count()
-	grouper_overall = noise_df.groupby([pd.Grouper(freq='1D')]).count()
-
-
+	
 	fig = px.line(grouper_overall, 
                  x=grouper_overall.index, 
                  y=grouper_overall.unique_key, 
@@ -45,10 +49,6 @@ def noise_graph(graph_type):
 	return fig
 
 def noise_graph_borough():
-	limit=3000
-	req_borough_w = get(f"https://data.cityofnewyork.us/api/id/erm2-nwe9.csv?$query=select%20date_trunc_ymd(%60created_date%60)%20as%20%60created_date%60%2C%20%60complaint_type%60%2C%20%60borough%60%2C%20count(%60unique_key%60)%20as%20%60unique_key%60%20where%20(contains(upper(%60complaint_type%60)%2C%20upper(%27Noise%27)))%20group%20by%20%60created_date%60%2C%20%60complaint_type%60%2C%20%60borough%60%20order%20by%20%60created_date%60%20desc%20limit%20{limit}")
-	df_borough_w= pd.read_csv(io.StringIO(req_borough_w.content.decode('utf-8')))
-	boroughs = df_borough_w[df_borough_w.complaint_type.str.contains("Noise")].groupby(['created_date', 'borough']).sum()
 	fig = px.line(boroughs, 
                  x=[a[0] for a in boroughs.index], 
                  y=boroughs.unique_key, 
