@@ -33,12 +33,12 @@ app.layout = html.Div(children=[
 
     dcc.Graph(
         animate=True,
-        figure=graphs.noise_graph("borough")
+        figure=graphs.noise_graph_borough()
     ),
 
     dcc.Graph(
         animate=True,
-        figure=graphs.noise_graph("zip")
+        figure=graphs.noise_graph_zip()
     )
 ])
 
@@ -46,4 +46,3 @@ if __name__ == '__main__':
     app.run_server(debug=True)
 
 
-    
