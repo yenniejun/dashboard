@@ -45,7 +45,7 @@ def noise_graph(graph_type):
 	return fig
 
 def noise_graph_borough():
-	limit=5000
+	limit=3000
 	req_borough_w = get(f"https://data.cityofnewyork.us/api/id/erm2-nwe9.csv?$query=select%20date_trunc_ymd(%60created_date%60)%20as%20%60created_date%60%2C%20%60complaint_type%60%2C%20%60borough%60%2C%20count(%60unique_key%60)%20as%20%60unique_key%60%20where%20(contains(upper(%60complaint_type%60)%2C%20upper(%27Noise%27)))%20group%20by%20%60created_date%60%2C%20%60complaint_type%60%2C%20%60borough%60%20order%20by%20%60created_date%60%20desc%20limit%20{limit}")
 	df_borough_w= pd.read_csv(io.StringIO(req_borough_w.content.decode('utf-8')))
 	boroughs = df_borough_w[df_borough_w.complaint_type.str.contains("Noise")].groupby(['created_date', 'borough']).sum()
@@ -62,8 +62,8 @@ def noise_graph_borough():
 	        buttons=list([
 	        	dict(count=7, label="1w", step="day", stepmode="backward"),
 	            dict(count=1, label="1m", step="month", stepmode="backward"),
-	            dict(count=3, label="3m", step="month", stepmode="backward"),
-	            dict(count=1, label="YTD", step="year", stepmode="todate"),
+	            dict(count=2, label="2m", step="month", stepmode="backward"),
+	            # dict(count=1, label="YTD", step="year", stepmode="todate"),
 	#             dict(count=1, label="1y", step="year", stepmode="backward"),
 	            dict(step="all")
 	        ])
@@ -74,7 +74,7 @@ def noise_graph_borough():
 
 
 def noise_graph_zip():
-	limit=20000
+	limit=5000
 	req_zip_w = get(f"https://data.cityofnewyork.us/api/id/erm2-nwe9.csv?$query=select%20date_trunc_ymd(%60created_date%60)%20as%20%60created_date%60%2C%20%60complaint_type%60%2C%20%60incident_zip%60%2C%20count(%60unique_key%60)%20as%20%60unique_key%60%20where%20(contains(upper(%60complaint_type%60)%2C%20upper(%27Noise%27)))%20group%20by%20%60created_date%60%2C%20%60complaint_type%60%2C%20%60incident_zip%60%20order%20by%20%60created_date%60%20desc%20limit%20{limit}")
 
 	df_zip_w= pd.read_csv(io.StringIO(req_zip_w.content.decode('utf-8')))
@@ -95,7 +95,7 @@ def noise_graph_zip():
 	        buttons=list([
 	            dict(count=7, label="1w", step="day", stepmode="backward"),
 	            dict(count=14, label="2w", step="day", stepmode="backward"),
-	            dict(count=1, label="1m", step="month", stepmode="backward"),
+	            # dict(count=1, label="1m", step="month", stepmode="backward"),
 	            dict(step="all")
 	        ])
 	    )
