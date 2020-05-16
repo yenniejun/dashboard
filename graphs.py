@@ -23,6 +23,7 @@ req_borough_w = get(f"https://data.cityofnewyork.us/api/id/erm2-nwe9.csv?$query=
 df_borough_w= pd.read_csv(io.StringIO(req_borough_w.content.decode('utf-8')))
 boroughs = df_borough_w[df_borough_w.complaint_type.str.contains("Noise")].groupby(['created_date', 'borough']).sum()
 
+limit=5000
 req_zip_w = get(f"https://data.cityofnewyork.us/api/id/erm2-nwe9.csv?$query=select%20date_trunc_ymd(%60created_date%60)%20as%20%60created_date%60%2C%20%60complaint_type%60%2C%20%60incident_zip%60%2C%20count(%60unique_key%60)%20as%20%60unique_key%60%20where%20(contains(upper(%60complaint_type%60)%2C%20upper(%27Noise%27)))%20group%20by%20%60created_date%60%2C%20%60complaint_type%60%2C%20%60incident_zip%60%20order%20by%20%60created_date%60%20desc%20limit%20{limit}")
 df_zip_w= pd.read_csv(io.StringIO(req_zip_w.content.decode('utf-8')))
 zips = df_zip_w[df_zip_w.complaint_type.str.contains("Noise")].groupby(['created_date', 'incident_zip']).sum()
